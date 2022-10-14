@@ -3,3 +3,9 @@
 
 # Exclude dependencies
 node_modules/
+
+#keys
+firebase-key.json
+
+#enb
+.env

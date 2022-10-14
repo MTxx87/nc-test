@@ -1,5 +1,10 @@
 # Exclude compiled .js files
+
 *.js
+.gitignore
+.env
+firebase-key.json
 
 # Exclude dependencies
+
 node_modules/
