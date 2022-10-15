@@ -3,7 +3,9 @@
 *.js
 .gitignore
 .env
-firebase-key.json
+key.json
+tslint.json
+
 
 # Exclude dependencies
 

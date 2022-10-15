@@ -12,13 +12,49 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import express = require('express')
+import { getFirestore } from 'firebase-admin/firestore'
+import { initializeApp, applicationDefault, cert } from 'firebase-admin/app'
+import * as dotenv from 'dotenv'
+import * as express from 'express'
+
+dotenv.config()
+
+let credential
+if (process.env.NODE_ENV === 'development') {
+  const serviceAccount = require('./key.json')
+  credential = cert(serviceAccount)
+} else {
+  credential = applicationDefault()
+}
+
+initializeApp({
+  credential,
+})
 
 const PORT = process.env.PORT || 8080
+const db = getFirestore()
 const app = express()
+app.use(express.json())
 
 app.get('/', (req, res) => {
-  res.send('🎉 Hello TypeScript! 🎉')
+  res.send('🎉 Server up and running! 🎉')
+})
+
+app.get('/users/:id', async (req, res) => {
+  try {
+    const id = req.params.id
+    const userRef = db.collection('users').doc(id)
+    const doc = await userRef.get()
+    if (doc.exists) {
+      let data = doc.data()
+      res.json(data)
+    } else {
+      res.sendStatus(404)
+    }
+  } catch (error) {
+    res.sendStatus(500)
+    console.log(error)
+  }
 })
 
 const server = app.listen(PORT, () => {

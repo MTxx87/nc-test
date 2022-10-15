@@ -5,7 +5,7 @@
 node_modules/
 
 #keys
-firebase-key.json
+key.json
 
 #enb
 .env
