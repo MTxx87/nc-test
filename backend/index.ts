@@ -1,19 +1,6 @@
-// Copyright 2018 Google LLC
-//
-// Licensed under the Apache License, Version 2.0 (the 'License');
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an 'AS IS' BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 import { getFirestore } from 'firebase-admin/firestore'
 import { initializeApp, applicationDefault, cert } from 'firebase-admin/app'
+import { Request, Response } from 'express'
 import * as dotenv from 'dotenv'
 import * as express from 'express'
 
@@ -54,6 +41,33 @@ app.get('/users/:id', async (req, res) => {
   } catch (error) {
     res.sendStatus(500)
     console.log(error)
+  }
+})
+
+type User = {
+  name?: string
+  email?: string
+}
+
+app.put('/users/:id', async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id
+    const body = req.body
+
+    const data: User = {}
+
+    if (body.name) {
+      data.name = body.name
+    }
+    if (body.email) {
+      data.email = body.email
+    }
+
+    const userRef = db.collection('users').doc(id)
+    const result = await userRef.set(data, { merge: true })
+    res.json(result)
+  } catch (error) {
+    res.sendStatus(500)
   }
 })
 
