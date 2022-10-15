@@ -1,30 +1,25 @@
 import { Request, Response } from 'express'
 import db from '../../../db'
+import { User } from '../../../interfaces'
 
-type User = {
-  name?: string
-  email?: string
+type PutParams = {
+  id: string
 }
 
-const endpoint = async (req: Request, res: Response) => {
+const endpoint = async (
+  req: Request<PutParams, User, User>,
+  res: Response<User>,
+) => {
   try {
     const id = req.params.id
-    const body = req.body
-
-    const data: User = {}
-
-    if (body.name) {
-      data.name = body.name
-    }
-    if (body.email) {
-      data.email = body.email
-    }
-
+    const user = req.body
     const userRef = db.collection('users').doc(id)
-    const result = await userRef.set(data, { merge: true })
-    res.json(result)
+    await userRef.set(user, { merge: true })
+    const doc = await userRef.get()
+    res.json(doc.data() as User)
   } catch (error) {
     res.sendStatus(500)
+    console.log(error)
   }
 }
 
