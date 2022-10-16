@@ -14,7 +14,7 @@ const Confirm = (props: ConfirmProps) => {
   const [error, setError] = useState<string>()
   const [code, setCode] = useState<string>('')
   const navigate = useNavigate()
-  const [loading, setLoading] = useState<boolean>()
+  const [loading, setLoading] = useState<boolean>(false)
 
   const onSubmit = useCallback(
     (e: React.FormEvent) => {

@@ -18,7 +18,7 @@ const Login = (props: LoginProps) => {
   const [captcha, setCaptcha] = useState<RecaptchaVerifier>()
   const [error, setError] = useState<string>()
   const [phone, setPhone] = useState<string>('')
-  const [loading, setLoading] = useState<boolean>()
+  const [loading, setLoading] = useState<boolean>(false)
 
   const onSubmit = useCallback(
     (e: React.FormEvent) => {
