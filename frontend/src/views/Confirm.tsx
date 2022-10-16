@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ConfirmationResult } from 'firebase/auth'
+import { ConfirmationResult, User } from 'firebase/auth'
 //@ts-ignore
 import mergeClassNames from 'merge-class-names'
 import { useNavigate } from 'react-router-dom'
@@ -7,10 +7,11 @@ import { validateCode } from '../utils/helpers'
 
 type ConfirmProps = {
   confirmationResult?: ConfirmationResult
+  setUserCB: (user: User) => void
 }
 
 const Confirm = (props: ConfirmProps) => {
-  const { confirmationResult } = props
+  const { confirmationResult, setUserCB } = props
   const [error, setError] = useState<string>()
   const [code, setCode] = useState<string>('')
   const navigate = useNavigate()
@@ -39,9 +40,10 @@ const Confirm = (props: ConfirmProps) => {
       confirmationResult
         .confirm(code)
         .then((result) => {
-          setLoading(false)
           const user = result.user
           console.log('WE LOGGED IN!', user)
+          setLoading(false)
+          setUserCB(user)
         })
         .catch(() => {
           setLoading(false)

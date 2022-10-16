@@ -3,7 +3,7 @@ import { initializeApp } from 'firebase/app'
 //@ts-ignore
 import ReactObserver from 'react-event-observer'
 
-import { getAuth } from 'firebase/auth'
+import { getAuth, User } from 'firebase/auth'
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -26,8 +26,8 @@ auth.onAuthStateChanged(function (user) {
   firebaseObserver.publish('authStateChanged', loggedIn())
 })
 
-export function loggedIn() {
-  return !!auth.currentUser
+export function loggedIn(): User | null {
+  return auth.currentUser
 }
 
 export default app

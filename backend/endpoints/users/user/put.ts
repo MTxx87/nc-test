@@ -14,6 +14,7 @@ const endpoint = async (
     const id = req.params.id
     const user = req.body
     const userRef = db.collection('users').doc(id)
+    console.log(user)
     await userRef.set(user, { merge: true })
     const doc = await userRef.get()
     res.json(doc.data() as User)

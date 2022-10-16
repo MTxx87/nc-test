@@ -1,17 +1,18 @@
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom'
 import { Suspense, lazy, useState, useCallback, useEffect } from 'react'
-import { ConfirmationResult } from 'firebase/auth'
+import { ConfirmationResult, User } from 'firebase/auth'
 import { firebaseObserver, loggedIn } from '../utils/firebase'
+import { auth } from '../utils/firebase'
 
 const Home = lazy(() => import('../views/Home'))
 const Login = lazy(() => import('../views/Login'))
 const Confirm = lazy(() => import('../views/Confirm'))
 
 const PortalRoutes = () => {
+  const [user, setUser] = useState<User | null>(loggedIn())
   const [confirmationResult, setConfirmationResult] =
     useState<ConfirmationResult>()
   const navigate = useNavigate()
-  const [authenticated, setAuthenticated] = useState(loggedIn())
 
   const confirmationResultCB = useCallback(
     (confirmationResult: ConfirmationResult) => {
@@ -21,8 +22,8 @@ const PortalRoutes = () => {
   )
 
   useEffect(() => {
-    firebaseObserver.subscribe('authStateChanged', (data: any) => {
-      setAuthenticated(data)
+    firebaseObserver.subscribe('authStateChanged', (data: User | null) => {
+      setUser(data)
     })
     return () => {
       firebaseObserver.unsubscribe('authStateChanged')
@@ -38,26 +39,31 @@ const PortalRoutes = () => {
   }, [confirmationResult, navigate])
 
   useEffect(() => {
-    console.log('AUTHENTICATED?', authenticated)
+    console.log('AUTHENTICATED?', user)
 
-    if (!authenticated) {
+    if (!user) {
       return
     }
 
     navigate('/')
-  }, [authenticated, navigate])
+  }, [user, navigate])
 
   return (
     <Suspense fallback={null}>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Home user={user} />} />
         <Route
           path="/login"
           element={<Login confirmationResultCB={confirmationResultCB} />}
         />
         <Route
           path="/confirm"
-          element={<Confirm confirmationResult={confirmationResult} />}
+          element={
+            <Confirm
+              confirmationResult={confirmationResult}
+              setUserCB={setUser}
+            />
+          }
         />
         <Route path="*" element={<Navigate replace to="/login" />} />
       </Routes>

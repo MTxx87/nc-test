@@ -1,21 +1,28 @@
-import { useCallback, useState } from 'react'
-import { signOut } from 'firebase/auth'
+import { useCallback, useEffect, useState } from 'react'
+import { signOut, User } from 'firebase/auth'
 import { auth } from '../utils/firebase'
 import { useNavigate } from 'react-router-dom'
 //@ts-ignore
 import mergeClassNames from 'merge-class-names'
 import { validateEmail, validateName } from '../utils/helpers'
+import userApi from '../api/user'
 
 type CustomError = {
   email?: string
   name?: string
 }
 
-const Home = () => {
+type HomeProps = {
+  user: User | null
+}
+
+const Home = (props: HomeProps) => {
+  const { user } = props
   const [loading, setLoading] = useState<boolean>(false)
   const [name, setName] = useState<string>('')
   const [email, setEmail] = useState<string>('')
-  const [error, setError] = useState<CustomError>({})
+  const [formError, setFormError] = useState<CustomError>({})
+  const [error, setError] = useState<string>()
 
   const navigate = useNavigate()
 
@@ -24,26 +31,79 @@ const Home = () => {
       .then(() => {
         navigate('/login')
       })
-      .catch((error) => {
+      .catch(() => {
         alert('We could not logout at the moment, try later.')
       })
   }, [navigate])
 
   const save = useCallback(() => {
-    setError({})
+    const editUserData = async (phone: string, name: string, email: string) => {
+      setLoading(true)
+
+      const result = await userApi({
+        phone,
+        method: 'PUT',
+        body: {
+          email,
+          name,
+        },
+      })
+
+      if (!result.success) {
+        setError('Something went wrong, please try again')
+        return
+      }
+
+      const user = result.data
+      setLoading(false)
+      setName(user.name)
+      setEmail(user.email)
+    }
+
+    setError(undefined)
+    setFormError({})
     const validEmail = validateEmail(email)
     const validName = validateName(name)
 
     if (validEmail !== true || validName !== true) {
-      setError({
+      setFormError({
         email: validEmail === true ? undefined : validEmail,
         name: validName === true ? undefined : validName,
       })
       return
     }
 
-    setLoading(true)
-  }, [email, name])
+    if (!user?.phoneNumber) {
+      setError('Something went wrong, please try again')
+      return
+    }
+
+    editUserData(user.phoneNumber, name, email)
+  }, [email, name, user])
+
+  useEffect(() => {
+    const getUserData = async (phone: string) => {
+      const result = await userApi({
+        phone,
+      })
+
+      if (!result.success) {
+        setError('Something went wrong, please try again')
+        setLoading(false)
+        return
+      }
+
+      const user = result.data
+      setName(user.name)
+      setEmail(user.email)
+    }
+
+    if (!user?.phoneNumber) {
+      return
+    }
+
+    getUserData(user.phoneNumber)
+  }, [user])
 
   return (
     <>
@@ -76,7 +136,7 @@ const Home = () => {
                       type="text"
                       className={mergeClassNames(
                         'form-control',
-                        error.name && 'is-invalid',
+                        formError.name && 'is-invalid',
                       )}
                       id="name"
                       value={name}
@@ -84,7 +144,7 @@ const Home = () => {
                         setName(event.target.value)
                       }}
                     />
-                    <div className="invalid-feedback">{error.name}</div>
+                    <div className="invalid-feedback">{formError.name}</div>
                   </div>
                 </div>
                 <div className="mb-3 row">
@@ -96,7 +156,7 @@ const Home = () => {
                       type="text"
                       className={mergeClassNames(
                         'form-control',
-                        error.email && 'is-invalid',
+                        formError.email && 'is-invalid',
                       )}
                       id="email"
                       value={email}
@@ -105,9 +165,10 @@ const Home = () => {
                       }}
                     />
 
-                    <div className="invalid-feedback">{error.email}</div>
+                    <div className="invalid-feedback">{formError.email}</div>
                   </div>
                 </div>
+                {error && <div className="alert alert-danger">{error}</div>}
                 <button
                   type="submit"
                   className="btn btn-primary"

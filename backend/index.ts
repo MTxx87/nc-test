@@ -2,11 +2,13 @@ import * as dotenv from 'dotenv'
 import * as express from 'express'
 import getUser from './endpoints/users/user/get'
 import putUser from './endpoints/users/user/put'
+import * as cors from 'cors'
 
 dotenv.config()
 
 const app = express()
 app.use(express.json())
+app.use(cors({ origin: ['http://localhost:3000', 'https://app.netlify.com'] }))
 
 app.get('/', (req, res) => {
   res.send('🎉 Server up and running! 🎉')
