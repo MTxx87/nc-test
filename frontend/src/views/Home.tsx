@@ -88,8 +88,14 @@ const Home = (props: HomeProps) => {
       })
 
       if (!result.success) {
-        setError('Something went wrong, please try again')
+        const err = result.error
+        if (err.status === 404) {
+          console.log('404: we assume it is a new user')
+          setLoading(false)
+          return
+        }
         setLoading(false)
+        setError('Something went wrong, please try again')
         return
       }
 
@@ -114,7 +120,7 @@ const Home = (props: HomeProps) => {
               <div className="container">
                 <div className="row">
                   <div className="col">
-                    <h1>Home</h1>
+                    <h1>Profile page</h1>
                   </div>
                   <div className="col text-end">
                     <button

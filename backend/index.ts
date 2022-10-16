@@ -8,7 +8,9 @@ dotenv.config()
 
 const app = express()
 app.use(express.json())
-app.use(cors({ origin: ['http://localhost:3000', 'https://app.netlify.com'] }))
+app.use(
+  cors({ origin: ['http://localhost:3000', 'https://nc-test.netlify.app'] }),
+)
 
 app.get('/', (req, res) => {
   res.send('🎉 Server up and running! 🎉')
