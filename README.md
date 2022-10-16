@@ -7,7 +7,8 @@ Some of the parts I have never done before, so I had to read plenty of documenta
 
 1. Error handling on frontend is really basic and could be improved, expecially when it comes to network calls.
 1. Private routes implementation such as the "profile" page can be done better. Right now the page flickers on the profile page before redirecting back to login in case the user is not authenticated.
-1. Security in backend and DB can be dramatically improved. Right now security is limited to CORS and little more.
+1. Security in backend and DB can be dramatically improved. Right now security is limited to CORS settings and little more.
+1. Security in frontend can also be improved. Eg. The parameters used in the Firebase setup should be moved to the `.env` files, as done for the `backend_url` parameter.
 
 ## Frontend
 
