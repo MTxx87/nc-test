@@ -8,7 +8,7 @@ const Login = lazy(() => import('../views/Login'))
 const Confirm = lazy(() => import('../views/Confirm'))
 
 const PortalRoutes = () => {
-  const [user, setUser] = useState<User | null>(loggedIn())
+  const [user, setUser] = useState<User | null>()
   const [confirmationResult, setConfirmationResult] =
     useState<ConfirmationResult>()
   const navigate = useNavigate()
@@ -43,7 +43,7 @@ const PortalRoutes = () => {
     if (!user) {
       return
     }
-
+    setConfirmationResult(undefined)
     navigate('/')
   }, [user, navigate])
 

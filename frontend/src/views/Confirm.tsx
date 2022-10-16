@@ -52,7 +52,7 @@ const Confirm = (props: ConfirmProps) => {
           )
         })
     },
-    [code, confirmationResult],
+    [code, confirmationResult, setUserCB],
   )
 
   useEffect(

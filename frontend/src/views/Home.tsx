@@ -13,7 +13,7 @@ type CustomError = {
 }
 
 type HomeProps = {
-  user: User | null
+  user?: User | null
 }
 
 const Home = (props: HomeProps) => {
@@ -110,6 +110,12 @@ const Home = (props: HomeProps) => {
 
     getUserData(user.phoneNumber)
   }, [user])
+
+  useEffect(() => {
+    if (user === null) {
+      navigate('/login')
+    }
+  }, [navigate, user])
 
   return (
     <>
