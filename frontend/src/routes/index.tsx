@@ -2,7 +2,6 @@ import { Routes, Route, useNavigate, Navigate } from 'react-router-dom'
 import { Suspense, lazy, useState, useCallback, useEffect } from 'react'
 import { ConfirmationResult, User } from 'firebase/auth'
 import { firebaseObserver, loggedIn } from '../utils/firebase'
-import { auth } from '../utils/firebase'
 
 const Home = lazy(() => import('../views/Home'))
 const Login = lazy(() => import('../views/Login'))
