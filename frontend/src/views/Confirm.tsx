@@ -1,67 +1,69 @@
 import { useCallback, useEffect, useState } from 'react'
-import {
-  RecaptchaVerifier,
-  ConfirmationResult,
-  signInWithPhoneNumber,
-} from 'firebase/auth'
-import { auth } from '../utils/firebase'
-import { validatePhoneNumber } from '../utils/helpers'
+import { ConfirmationResult } from 'firebase/auth'
 //@ts-ignore
 import mergeClassNames from 'merge-class-names'
+import { useNavigate } from 'react-router-dom'
+import { validateCode } from '../utils/helpers'
 
-type LoginProps = {
-  confirmationResultCB: (confirmationResult: ConfirmationResult) => void
+type ConfirmProps = {
+  confirmationResult?: ConfirmationResult
 }
 
-const Login = (props: LoginProps) => {
-  const { confirmationResultCB } = props
-  const [captcha, setCaptcha] = useState<RecaptchaVerifier>()
+const Confirm = (props: ConfirmProps) => {
+  const { confirmationResult } = props
   const [error, setError] = useState<string>()
-  const [phone, setPhone] = useState<string>('')
+  const [code, setCode] = useState<string>('')
+  const navigate = useNavigate()
   const [loading, setLoading] = useState<boolean>()
 
   const onSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault()
+
       setError(undefined)
 
-      const isValid = validatePhoneNumber(phone)
+      const isValid = validateCode(code)
 
       if (isValid !== true) {
         setError(isValid)
         return
       }
 
-      console.log('Proceed!')
+      if (typeof confirmationResult === 'undefined') {
+        setError('Something went wrong, please try again.')
+        return
+      }
+
       setError(undefined)
       setLoading(true)
-      signInWithPhoneNumber(auth, phone, captcha as RecaptchaVerifier)
-        .then((confirmationResult) => {
-          console.log('We sent the code')
+      confirmationResult
+        .confirm(code)
+        .then((result) => {
           setLoading(false)
-          confirmationResultCB(confirmationResult)
+          const user = result.user
+          console.log('WE LOGGED IN!', user)
         })
         .catch(() => {
           setLoading(false)
           setError(
-            'We could not send the SMS, please check the entered phone number or try again later.',
+            'We could not log in with the provided code, please try again.',
           )
         })
     },
-    [auth, captcha, confirmationResultCB, phone],
+    [code, confirmationResult],
   )
 
-  useEffect(() => {
-    setCaptcha(
-      new RecaptchaVerifier(
-        'login-button',
-        {
-          size: 'invisible',
-        },
-        auth,
-      ),
-    )
-  }, [auth])
+  useEffect(
+    () => {
+      if (typeof confirmationResult === 'undefined') {
+        navigate('/login')
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      //confirmationResult //not here by choice
+    ],
+  )
 
   return (
     <>
@@ -75,27 +77,26 @@ const Login = (props: LoginProps) => {
                   htmlFor="exampleInputEmail1"
                   className="form-label text-dark"
                 >
-                  Enter your mobile number.
+                  Enter the 6-digits code
                 </label>
                 <input
                   type="text"
-                  placeholder="+46 XX XXX XX XX"
+                  placeholder="XXXXXX"
                   className={mergeClassNames(
                     'form-control',
                     error && 'is-invalid',
                   )}
                   id="phone"
                   aria-describedby="phoneHelp"
-                  value={phone}
+                  value={code}
                   onChange={(event) => {
-                    setPhone(event.target.value)
+                    setCode(event.target.value)
                   }}
                 />
                 <div className="invalid-feedback">{error}</div>
               </div>
               <div className="d-grid">
                 <button
-                  type="submit"
                   className="btn btn-primary"
                   id="login-button"
                   onClick={onSubmit}
@@ -107,7 +108,7 @@ const Login = (props: LoginProps) => {
                       aria-hidden="true"
                     ></span>
                   )}
-                  Send code
+                  Login
                 </button>
               </div>
             </form>
@@ -118,4 +119,4 @@ const Login = (props: LoginProps) => {
   )
 }
 
-export default Login
+export default Confirm

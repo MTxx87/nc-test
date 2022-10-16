@@ -1,5 +1,9 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from 'firebase/app'
+//@ts-ignore
+import ReactObserver from 'react-event-observer'
+
+import { getAuth } from 'firebase/auth'
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -15,5 +19,15 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig)
+export const auth = getAuth()
+export const firebaseObserver = ReactObserver()
+
+auth.onAuthStateChanged(function (user) {
+  firebaseObserver.publish('authStateChanged', loggedIn())
+})
+
+export function loggedIn() {
+  return !!auth.currentUser
+}
 
 export default app
