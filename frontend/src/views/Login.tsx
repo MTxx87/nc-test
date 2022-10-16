@@ -48,7 +48,7 @@ const Login = (props: LoginProps) => {
           )
         })
     },
-    [auth, captcha, confirmationResultCB, phone],
+    [captcha, confirmationResultCB, phone],
   )
 
   useEffect(() => {
@@ -61,7 +61,7 @@ const Login = (props: LoginProps) => {
         auth,
       ),
     )
-  }, [auth])
+  }, [])
 
   return (
     <>
